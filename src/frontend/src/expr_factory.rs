@@ -18,6 +18,7 @@ use std::sync::Arc;
 use api::helper::ColumnDataTypeWrapper;
 use api::v1::{Column, ColumnDataType, CreateTableExpr};
 use datatypes::schema::ColumnSchema;
+use session::context::QueryContextRef;
 use snafu::{ensure, ResultExt};
 use sql::ast::{ColumnDef, TableConstraint};
 use sql::statements::create::{CreateTable, TIME_INDEX};
@@ -32,7 +33,11 @@ pub type CreateExprFactoryRef = Arc<dyn CreateExprFactory + Send + Sync>;
 
 #[async_trait::async_trait]
 pub trait CreateExprFactory {
-    async fn create_expr_by_stmt(&self, stmt: &CreateTable) -> Result<CreateTableExpr>;
+    async fn create_expr_by_stmt(
+        &self,
+        stmt: &CreateTable,
+        query_ctx: QueryContextRef,
+    ) -> Result<CreateTableExpr>;
 
     async fn create_expr_by_columns(
         &self,
@@ -48,8 +53,12 @@ pub struct DefaultCreateExprFactory;
 
 #[async_trait::async_trait]
 impl CreateExprFactory for DefaultCreateExprFactory {
-    async fn create_expr_by_stmt(&self, stmt: &CreateTable) -> Result<CreateTableExpr> {
-        create_to_expr(None, vec![0], stmt)
+    async fn create_expr_by_stmt(
+        &self,
+        stmt: &CreateTable,
+        query_ctx: QueryContextRef,
+    ) -> Result<CreateTableExpr> {
+        create_to_expr(None, vec![0], stmt, query_ctx)
     }
 
     async fn create_expr_by_columns(
@@ -78,9 +87,12 @@ fn create_to_expr(
     table_id: Option<u32>,
     region_ids: Vec<u32>,
     create: &CreateTable,
+    query_ctx: QueryContextRef,
 ) -> Result<CreateTableExpr> {
     let (catalog_name, schema_name, table_name) =
         table_idents_to_full_name(&create.name).context(ParseSqlSnafu)?;
+    let catalog_name = query_ctx.current_catalog().unwrap_or(catalog_name);
+    let schema_name = query_ctx.current_schema().unwrap_or(schema_name);
 
     let time_index = find_time_index(&create.constraints)?;
     let expr = CreateTableExpr {

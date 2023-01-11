@@ -161,7 +161,9 @@ impl DistInstance {
                 Ok(self.handle_create_database(expr).await?)
             }
             Statement::CreateTable(stmt) => {
-                let create_expr = &mut DefaultCreateExprFactory.create_expr_by_stmt(&stmt).await?;
+                let create_expr = &mut DefaultCreateExprFactory
+                    .create_expr_by_stmt(&stmt, query_ctx)
+                    .await?;
                 Ok(self.create_table(create_expr, stmt.partitions).await?)
             }
             Statement::ShowDatabases(stmt) => show_databases(stmt, self.catalog_manager.clone()),
