@@ -167,6 +167,7 @@ fn resolve_addr(bind_addr: &str, hostname_addr: &Option<String>) -> String {
 
 #[cfg(test)]
 mod tests {
+
     #[test]
     fn test_resolve_addr() {
         assert_eq!(
