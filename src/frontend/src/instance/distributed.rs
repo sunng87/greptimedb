@@ -176,6 +176,8 @@ impl DistInstance {
             }
             Statement::Insert(insert) => {
                 let (catalog, schema, table) = insert.full_table_name().context(ParseSqlSnafu)?;
+                let catalog = query_ctx.current_catalog().unwrap_or(catalog);
+                let schema = query_ctx.current_schema().unwrap_or(schema);
 
                 let table = self
                     .catalog_manager
