@@ -170,7 +170,9 @@ impl DistInstance {
             Statement::ShowTables(stmt) => {
                 show_tables(stmt, self.catalog_manager.clone(), query_ctx)
             }
-            Statement::DescribeTable(stmt) => describe_table(stmt, self.catalog_manager.clone()),
+            Statement::DescribeTable(stmt) => {
+                describe_table(stmt, self.catalog_manager.clone(), query_ctx)
+            }
             Statement::Explain(stmt) => {
                 explain(Box::new(stmt), self.query_engine.clone(), query_ctx).await
             }

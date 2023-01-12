@@ -170,9 +170,16 @@ pub async fn explain(
     query_engine.execute(&plan).await
 }
 
-pub fn describe_table(stmt: DescribeTable, catalog_manager: CatalogManagerRef) -> Result<Output> {
-    let catalog = stmt.catalog_name.as_str();
-    let schema = stmt.schema_name.as_str();
+pub fn describe_table(
+    stmt: DescribeTable,
+    catalog_manager: CatalogManagerRef,
+    query_ctx: QueryContextRef,
+) -> Result<Output> {
+    let catalog = query_ctx.current_catalog();
+    let catalog = catalog.as_deref().unwrap_or(stmt.catalog_name.as_str());
+
+    let schema = query_ctx.current_schema();
+    let schema = schema.as_deref().unwrap_or(stmt.catalog_name.as_str());
     catalog_manager
         .catalog(catalog)
         .context(error::CatalogSnafu)?

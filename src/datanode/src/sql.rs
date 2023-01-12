@@ -84,7 +84,8 @@ impl SqlHandler {
                 show_tables(stmt, self.catalog_manager.clone(), query_ctx).context(ExecuteSqlSnafu)
             }
             SqlRequest::DescribeTable(stmt) => {
-                describe_table(stmt, self.catalog_manager.clone()).context(ExecuteSqlSnafu)
+                describe_table(stmt, self.catalog_manager.clone(), query_ctx)
+                    .context(ExecuteSqlSnafu)
             }
             SqlRequest::Explain(stmt) => explain(stmt, self.query_engine.clone(), query_ctx)
                 .await
