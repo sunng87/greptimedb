@@ -16,6 +16,7 @@ use common_error::snafu::ensure;
 use datatypes::data_type::DataType;
 use datatypes::prelude::MutableVector;
 use datatypes::schema::ColumnSchema;
+use session::context::QueryContextRef;
 use snafu::{OptionExt, ResultExt};
 use sql::ast::Value as SqlValue;
 use sql::statements;
@@ -29,11 +30,17 @@ const DEFAULT_PLACEHOLDER_VALUE: &str = "default";
 
 // TODO(fys): Extract the common logic in datanode and frontend in the future.
 #[allow(dead_code)]
-pub(crate) fn insert_to_request(table: &TableRef, stmt: Insert) -> Result<InsertRequest> {
+pub(crate) fn insert_to_request(
+    table: &TableRef,
+    stmt: Insert,
+    query_ctx: QueryContextRef,
+) -> Result<InsertRequest> {
     let columns = stmt.columns();
     let values = stmt.values().context(error::ParseSqlSnafu)?;
     let (catalog_name, schema_name, table_name) =
         stmt.full_table_name().context(error::ParseSqlSnafu)?;
+    let catalog_name = query_ctx.current_catalog().unwrap_or(catalog_name);
+    let schema_name = query_ctx.current_schema().unwrap_or(schema_name);
 
     let schema = table.schema();
     let columns_num = if columns.is_empty() {

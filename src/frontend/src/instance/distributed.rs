@@ -185,7 +185,7 @@ impl DistInstance {
                     .context(CatalogSnafu)?
                     .context(TableNotFoundSnafu { table_name: table })?;
 
-                let insert_request = insert_to_request(&table, *insert)?;
+                let insert_request = insert_to_request(&table, *insert, query_ctx)?;
 
                 return Ok(Output::AffectedRows(
                     table.insert(insert_request).await.context(TableSnafu)?,
