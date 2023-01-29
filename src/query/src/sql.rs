@@ -280,8 +280,8 @@ mod test {
     use datatypes::prelude::ConcreteDataType;
     use datatypes::schema::{ColumnDefaultConstraint, ColumnSchema, Schema, SchemaRef};
     use datatypes::vectors::{StringVector, TimestampMillisecondVector, UInt32Vector, VectorRef};
-    use snafu::ResultExt;
     use session::context::QueryContext;
+    use snafu::ResultExt;
     use sql::statements::describe::DescribeTable;
     use table::test_util::MemTable;
 
@@ -307,7 +307,9 @@ mod test {
             prepare_describe_table(&catalog_name, &schema_name, table_name, table_schema, data);
 
         let stmt = DescribeTable::new("unknown".to_string(), schema_name, table_name.to_string());
-        let err = describe_table(stmt, catalog_manager, Arc::new(QueryContext::new())).err().unwrap();
+        let err = describe_table(stmt, catalog_manager, Arc::new(QueryContext::new()))
+            .err()
+            .unwrap();
         let err = err.as_any().downcast_ref::<error::Error>().unwrap();
 
         if let error::Error::CatalogNotFound { catalog, .. } = err {
@@ -335,7 +337,9 @@ mod test {
 
         let stmt = DescribeTable::new(catalog_name, "unknown".to_string(), table_name.to_string());
 
-        let err = describe_table(stmt, catalog_manager, Arc::new(QueryContext::new())).err().unwrap();
+        let err = describe_table(stmt, catalog_manager, Arc::new(QueryContext::new()))
+            .err()
+            .unwrap();
         let err = err.as_any().downcast_ref::<error::Error>().unwrap();
 
         if let error::Error::SchemaNotFound { schema, .. } = err {
@@ -363,7 +367,9 @@ mod test {
 
         let stmt = DescribeTable::new(catalog_name, schema_name, "unknown".to_string());
 
-        let err = describe_table(stmt, catalog_manager, Arc::new(QueryContext::new())).err().unwrap();
+        let err = describe_table(stmt, catalog_manager, Arc::new(QueryContext::new()))
+            .err()
+            .unwrap();
         let err = err.as_any().downcast_ref::<error::Error>().unwrap();
 
         if let error::Error::TableNotFound { table, .. } = err {
