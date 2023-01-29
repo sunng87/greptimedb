@@ -630,7 +630,7 @@ ENGINE=mito",
             match &result[0] {
                 Statement::CreateTable(c) => {
                     let expr = DefaultCreateExprFactory
-                        .create_expr_by_stmt(c)
+                        .create_expr_by_stmt(c, Arc::new(QueryContext::new()))
                         .await
                         .unwrap();
                     let partitions = parse_partitions(&expr, c.partitions.clone()).unwrap();

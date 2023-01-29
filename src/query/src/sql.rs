@@ -179,7 +179,7 @@ pub fn describe_table(
     let catalog = catalog.as_deref().unwrap_or(stmt.catalog_name.as_str());
 
     let schema = query_ctx.current_schema();
-    let schema = schema.as_deref().unwrap_or(stmt.catalog_name.as_str());
+    let schema = schema.as_deref().unwrap_or(stmt.schema_name.as_str());
     catalog_manager
         .catalog(catalog)
         .context(error::CatalogSnafu)?
@@ -281,6 +281,7 @@ mod test {
     use datatypes::schema::{ColumnDefaultConstraint, ColumnSchema, Schema, SchemaRef};
     use datatypes::vectors::{StringVector, TimestampMillisecondVector, UInt32Vector, VectorRef};
     use snafu::ResultExt;
+    use session::context::QueryContext;
     use sql::statements::describe::DescribeTable;
     use table::test_util::MemTable;
 
@@ -306,8 +307,7 @@ mod test {
             prepare_describe_table(&catalog_name, &schema_name, table_name, table_schema, data);
 
         let stmt = DescribeTable::new("unknown".to_string(), schema_name, table_name.to_string());
-
-        let err = describe_table(stmt, catalog_manager).err().unwrap();
+        let err = describe_table(stmt, catalog_manager, Arc::new(QueryContext::new())).err().unwrap();
         let err = err.as_any().downcast_ref::<error::Error>().unwrap();
 
         if let error::Error::CatalogNotFound { catalog, .. } = err {
@@ -335,7 +335,7 @@ mod test {
 
         let stmt = DescribeTable::new(catalog_name, "unknown".to_string(), table_name.to_string());
 
-        let err = describe_table(stmt, catalog_manager).err().unwrap();
+        let err = describe_table(stmt, catalog_manager, Arc::new(QueryContext::new())).err().unwrap();
         let err = err.as_any().downcast_ref::<error::Error>().unwrap();
 
         if let error::Error::SchemaNotFound { schema, .. } = err {
@@ -363,7 +363,7 @@ mod test {
 
         let stmt = DescribeTable::new(catalog_name, schema_name, "unknown".to_string());
 
-        let err = describe_table(stmt, catalog_manager).err().unwrap();
+        let err = describe_table(stmt, catalog_manager, Arc::new(QueryContext::new())).err().unwrap();
         let err = err.as_any().downcast_ref::<error::Error>().unwrap();
 
         if let error::Error::TableNotFound { table, .. } = err {
@@ -439,7 +439,8 @@ mod test {
             schema_name.to_string(),
             table_name.to_string(),
         );
-        if let Output::RecordBatches(res) = describe_table(stmt, catalog_manager)? {
+        let ctx = QueryContext::with(catalog_name.to_string(), schema_name.to_string());
+        if let Output::RecordBatches(res) = describe_table(stmt, catalog_manager, Arc::new(ctx))? {
             assert_eq!(res.take(), expected.take());
         } else {
             panic!("describe table must return record batch");

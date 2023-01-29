@@ -626,6 +626,7 @@ mod test {
     use meta_client::client::MetaClient;
     use meta_client::rpc::router::RegionRoute;
     use meta_client::rpc::{Region, Table, TableRoute};
+    use session::context::QueryContext;
     use sql::parser::ParserContext;
     use sql::statements::statement::Statement;
     use table::metadata::{TableInfoBuilder, TableMetaBuilder};
@@ -1066,7 +1067,7 @@ mod test {
             };
 
         let mut expr = DefaultCreateExprFactory
-            .create_expr_by_stmt(&create_table)
+            .create_expr_by_stmt(&create_table, Arc::new(QueryContext::new()))
             .await
             .unwrap();
         let _result = dist_instance
