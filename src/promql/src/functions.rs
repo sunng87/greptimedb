@@ -12,10 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[macro_use]
-mod grpc;
-#[macro_use]
-mod http;
+mod idelta;
+mod increase;
 
-grpc_tests!(File, S3, Oss);
-http_tests!(File, S3, Oss);
+use datafusion::arrow::array::ArrayRef;
+use datafusion::error::DataFusionError;
+use datafusion::physical_plan::ColumnarValue;
+pub use idelta::IDelta;
+pub use increase::Increase;
+
+pub(crate) fn extract_array(columnar_value: &ColumnarValue) -> Result<ArrayRef, DataFusionError> {
+    if let ColumnarValue::Array(array) = columnar_value {
+        Ok(array.clone())
+    } else {
+        Err(DataFusionError::Execution(
+            "expect array as input, found scalar value".to_string(),
+        ))
+    }
+}
