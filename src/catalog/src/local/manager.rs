@@ -32,6 +32,7 @@ use table::engine::manager::TableEngineManagerRef;
 use table::engine::EngineContext;
 use table::metadata::TableId;
 use table::requests::OpenTableRequest;
+use table::table::auto::GenerativeTable;
 use table::table::numbers::NumbersTable;
 use table::table::TableIdProvider;
 use table::TableRef;
@@ -132,6 +133,9 @@ impl LocalCatalogManager {
         // Add numbers table for test
         let table = Arc::new(NumbersTable::default());
         default_schema.register_table_sync("numbers".to_string(), table)?;
+        // Add generative table
+        let table = Arc::new(GenerativeTable::new());
+        default_schema.register_table_sync(table.name().to_owned(), table)?;
 
         default_catalog.register_schema_sync(DEFAULT_SCHEMA_NAME.to_string(), default_schema)?;
         self.catalogs

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 pub mod adapter;
+pub mod auto;
 pub mod numbers;
 pub mod scan;
 
