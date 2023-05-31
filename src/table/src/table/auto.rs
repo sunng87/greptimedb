@@ -59,6 +59,7 @@ const SERIE_FOO_POLY_PARAMS: [f64; 16] = [
     7.56869166e+02,
     5.72776522e+00,
 ];
+const JITTER_VALUES: [f64; 7] = [0.93, 0.98, 1.0, 1.01, 0.95, 1.03, 1.10];
 
 /// A table that generates data on query
 ///
@@ -130,14 +131,20 @@ impl Default for GenerativeTable {
     }
 }
 
-fn polyval_series_foo(x: f64) -> f64 {
-    let x = x / 1e8;
+fn polyval_for_serie_foo(timestamp: f64) -> f64 {
+    let x = timestamp / 1e8;
     let param_len = SERIE_FOO_POLY_PARAMS.len();
-    SERIE_FOO_POLY_PARAMS
+
+    let jitter = JITTER_VALUES[(timestamp / 1e5).powi(2) as usize % JITTER_VALUES.len()];
+
+    let value = SERIE_FOO_POLY_PARAMS
         .iter()
         .enumerate()
-        .map(|(d, p)| p * x.powi((param_len - d - 1) as i32))
-        .sum()
+        .map(|(d, p)| p * x.powi((param_len - 1 - d) as i32))
+        .sum::<f64>()
+        * jitter;
+
+    value
 }
 
 struct GenerativeTableStream {
@@ -156,7 +163,7 @@ impl GenerativeSerie {
                     .iter()
                     .map(|ts| {
                         let normalized_ts = (ts % DAY_IN_MILLIS) as f64;
-                        polyval_series_foo(normalized_ts)
+                        polyval_for_serie_foo(normalized_ts)
                     })
                     .collect()
             }
