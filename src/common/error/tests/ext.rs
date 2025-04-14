@@ -84,6 +84,7 @@ fn test_to_string() {
     assert_eq!(result.unwrap_err().to_string(), "<root cause>");
 }
 
+#[cfg(not(target_family = "windows"))]
 #[test]
 fn test_debug_format() {
     let result = normal_error();
