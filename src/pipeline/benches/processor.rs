@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use std::hint::black_box;
+
+use criterion::{criterion_group, criterion_main, Criterion};
 use pipeline::error::Result;
 use pipeline::{json_to_map, parse, Content, Pipeline};
 use serde_json::{Deserializer, Value};
