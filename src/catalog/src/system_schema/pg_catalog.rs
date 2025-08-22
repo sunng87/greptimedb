@@ -22,6 +22,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Weak};
 
 use common_catalog::consts::{self, DEFAULT_CATALOG_NAME, DEFAULT_SCHEMA_NAME, PG_CATALOG_NAME};
+use datafusion_postgres::pg_catalog;
 use datatypes::schema::ColumnSchema;
 use lazy_static::lazy_static;
 use paste::paste;

@@ -34,6 +34,7 @@ common-time.workspace = true
 common-version.workspace = true
 dashmap.workspace = true
 datafusion.workspace = true
+datafusion-postgres = { git = "https://github.com/datafusion-contrib/datafusion-postgres.git", rev = "26b241336b8e0b69da9341c4535adef6910d4824" }
 datatypes.workspace = true
 futures.workspace = true
 futures-util.workspace = true
